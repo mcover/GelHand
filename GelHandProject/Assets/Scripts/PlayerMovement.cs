@@ -15,6 +15,9 @@ public class PlayerMovement : MonoBehaviour {
 	public float jumpForce=1000f;
 	public float snapForce = 2000f;
 	public Transform groundCheck;
+	public Transform wallL;
+	public Transform wallR;
+	public Transform ceilingCheck;
 	[HideInInspector]
 	public bool onWallR = false; //do I need one for each wall?
 	[HideInInspector]
@@ -28,13 +31,14 @@ public class PlayerMovement : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		onGround = Physics2D.Linecast(transform.position, groundCheck.position, 1 << LayerMask.NameToLayer("Ground"));
-		Debug.Log ("this: "+ transform.position);
-		Debug.Log ("groundCheck" + groundCheck.position);
-		
+		onWallL = Physics2D.Linecast(transform.position, wallL.position, 1<< LayerMask.NameToLayer("Ground"));
+		onWallR = Physics2D.Linecast (transform.position, wallR.position, 1 << LayerMask.NameToLayer ("Ground"));
+		onCeiling = Physics2D.Linecast(transform.position, ceilingCheck.position, 1 << LayerMask.NameToLayer("Ground"));
+
+
 		if (Input.GetKeyDown(KeyCode.Space) && onGround)
 		{
 			jumping = true;
-			Debug.Log("jump");
 		}
 	}
 
@@ -44,6 +48,15 @@ public class PlayerMovement : MonoBehaviour {
 		if (!onWallR && !onCeiling&&!onWallL) {
 			normalMovement (horizontal);
 		}
+		if (onWallL && Input.GetKeyDown(KeyCode.A)==true) {
+			//rb.gravityScale = 0;
+			rb.AddForce(Vector2.up*movementForce*vertical);
+		}
+		if (onWallR && horizontal>0) {
+			//rb.gravityScale = 0;
+			rb.AddForce(Vector2.up*movementForce*vertical);
+		}
+
 		if (jumping) {
 			rb.AddForce(Vector2.up* jumpForce, ForceMode2D.Impulse);
 			jumping = false;
